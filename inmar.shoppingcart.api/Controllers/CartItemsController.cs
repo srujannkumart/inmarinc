@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using inmar.shoppingcart.api.Context;
 using inmar.shoppingcart.api.Models;
+using inmar.shoppingcart.api.Repository;
 
 namespace inmar.shoppingcart.api.Controllers
 {
@@ -14,25 +15,23 @@ namespace inmar.shoppingcart.api.Controllers
     [ApiController]
     public class CartItemsController : ControllerBase
     {
-        private readonly ShoppingCartContext _context;
+        private readonly ICartItemsService _service;
 
-        public CartItemsController(ShoppingCartContext context)
+        public CartItemsController(ICartItemsService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: api/CartItems
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CartItem>>> GetCartItems()
         {
-            return await _context.CartItems.ToListAsync();
+            return await _service.GetCartItemsAsync();
         }
 
-        // GET: api/CartItems/5
         [HttpGet("{id}")]
         public async Task<ActionResult<CartItem>> GetCartItem(int id)
         {
-            var cartItem = await _context.CartItems.FindAsync(id);
+            var cartItem = await _service.GetCartItemAsync(id);
 
             if (cartItem == null)
             {
@@ -42,81 +41,33 @@ namespace inmar.shoppingcart.api.Controllers
             return cartItem;
         }
 
-        // PUT: api/CartItems/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCartItem(int id, CartItem cartItem)
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IList<CartItem>>> GetUserCartItems(int userId)
         {
-            if (id != cartItem.CartItemId)
-            {
-                return BadRequest();
-            }
+            var cartItems = await _service.GetUserCartItemsAsync(userId);
 
-            _context.Entry(cartItem).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CartItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/CartItems
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<CartItem>> PostCartItem(CartItem cartItem)
-        {
-            _context.CartItems.Add(cartItem);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (CartItemExists(cartItem.CartItemId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetCartItem", new { id = cartItem.CartItemId }, cartItem);
-        }
-
-        // DELETE: api/CartItems/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCartItem(int id)
-        {
-            var cartItem = await _context.CartItems.FindAsync(id);
-            if (cartItem == null)
+            if (cartItems == null)
             {
                 return NotFound();
             }
 
-            _context.CartItems.Remove(cartItem);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return cartItems;
         }
 
-        private bool CartItemExists(int id)
+        [HttpPost]
+        public async Task<ActionResult<CartItem>> PostCartItem(CartItem cartItem)
         {
-            return _context.CartItems.Any(e => e.CartItemId == id);
+            var cart = await _service.SaveCartItemAsync(cartItem);
+
+            return CreatedAtAction("GetCartItem", new { id = cartItem.CartItemId }, cart);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteCartItem(CartItem cartItem)
+        {
+            cartItem = await _service.DeleteCartItemAsync(cartItem);
+
+            return Ok(cartItem);
         }
     }
 }

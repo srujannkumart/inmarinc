@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using inmar.shoppingcart.api.Context;
 using inmar.shoppingcart.api.Models;
+using inmar.shoppingcart.api.Repository;
 
 namespace inmar.shoppingcart.api.Controllers
 {
@@ -14,25 +15,25 @@ namespace inmar.shoppingcart.api.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ShoppingCartContext _context;
+        private readonly IProductService _service;
 
-        public ProductsController(ShoppingCartContext context)
+        public ProductsController(IProductService service)
         {
-            _context = context;
+            _service = service;
         }
 
         // GET: api/Products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            return await _context.Products.ToListAsync();
+            return await _service.GetProductsAsync();
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _service.GetProductAsync(id);
 
             if (product == null)
             {
@@ -52,11 +53,9 @@ namespace inmar.shoppingcart.api.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _service.UpdateProductAsync(id, product);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +77,7 @@ namespace inmar.shoppingcart.api.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            await _service.CreateNewProductAsync(product);
 
             return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
         }
@@ -88,21 +86,14 @@ namespace inmar.shoppingcart.api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            await _service.DeleteProductAsync(id);
 
             return NoContent();
         }
 
         private bool ProductExists(int id)
         {
-            return _context.Products.Any(e => e.ProductId == id);
+            return _service.GetProductAsync(id) != null;
         }
     }
 }

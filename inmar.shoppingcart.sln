@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32413.511
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inmar.shoppingcart.api", "inmar.shoppingcart.api\inmar.shoppingcart.api.csproj", "{0EEF89A6-9EC5-4131-A460-BD876257900C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inmar.shoppingcart.api", "inmar.shoppingcart.api\inmar.shoppingcart.api.csproj", "{0EEF89A6-9EC5-4131-A460-BD876257900C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inmar.shoppingcar.api.tests", "inmar.shoppingcart.api.tests\inmar.shoppingcar.api.tests\inmar.shoppingcar.api.tests.csproj", "{142EEF35-C3EE-4E9F-9E08-5E8343AA832A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{0EEF89A6-9EC5-4131-A460-BD876257900C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EEF89A6-9EC5-4131-A460-BD876257900C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EEF89A6-9EC5-4131-A460-BD876257900C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{142EEF35-C3EE-4E9F-9E08-5E8343AA832A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{142EEF35-C3EE-4E9F-9E08-5E8343AA832A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{142EEF35-C3EE-4E9F-9E08-5E8343AA832A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{142EEF35-C3EE-4E9F-9E08-5E8343AA832A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

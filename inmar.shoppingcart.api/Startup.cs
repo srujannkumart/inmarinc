@@ -1,4 +1,5 @@
 using inmar.shoppingcart.api.Context;
+using inmar.shoppingcart.api.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -31,6 +32,11 @@ namespace inmar.shoppingcart.api
             services.AddDbContext<ShoppingCartContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
+
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ICartItemsService, CartItemsService>();
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

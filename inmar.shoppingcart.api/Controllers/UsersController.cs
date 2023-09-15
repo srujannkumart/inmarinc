@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using inmar.shoppingcart.api.Context;
 using inmar.shoppingcart.api.Models;
+using inmar.shoppingcart.api.Repository;
 
 namespace inmar.shoppingcart.api.Controllers
 {
@@ -14,25 +15,25 @@ namespace inmar.shoppingcart.api.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly ShoppingCartContext _context;
+        private readonly IUserService _service;
 
-        public UsersController(ShoppingCartContext context)
+        public UsersController(IUserService service)
         {
-            _context = context;
+            _service = service;
         }
 
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await _service.GetUsersAsync();
         }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _service.GetUserAsync(id);
 
             if (user == null)
             {
@@ -52,11 +53,9 @@ namespace inmar.shoppingcart.api.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _service.UpdateUserAsync(id, user);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +77,7 @@ namespace inmar.shoppingcart.api.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _service.CreateNewUserAsync(user);
 
             return CreatedAtAction("GetUser", new { id = user.UserId }, user);
         }
@@ -88,21 +86,14 @@ namespace inmar.shoppingcart.api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            await _service.DeleteUserAsync(id);
 
             return NoContent();
         }
 
         private bool UserExists(int id)
         {
-            return _context.Users.Any(e => e.UserId == id);
+            return _service.GetUserAsync(id) != null;
         }
     }
 }
